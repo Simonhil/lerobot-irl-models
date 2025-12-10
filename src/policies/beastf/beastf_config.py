@@ -23,16 +23,19 @@ class BeastVLAConfig(SmolVLAConfig):
         
         # Define input and output features for normalization
         self.input_features = {
-            "observation.images.right_cam": PolicyFeature(
-                type=FeatureType.VISUAL, shape=(3, 256, 256)
+            "observation.images.overhead_cam": PolicyFeature(
+                type=FeatureType.VISUAL, shape=(3, 224, 224)
             ),
-            "observation.images.wrist_cam": PolicyFeature(
-                type=FeatureType.VISUAL, shape=(3, 256, 256)
+            "observation.images.wrist_cam_left": PolicyFeature(
+                type=FeatureType.VISUAL, shape=(3, 224, 224)
             ),
-            "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(7,)),
+             "observation.images.wrist_cam_right": PolicyFeature(
+                type=FeatureType.VISUAL, shape=(3, 224, 224)
+            ),
+            "observation.state": PolicyFeature(type=FeatureType.STATE, shape=(14,)),
         }
         self.output_features = {
-            "action": PolicyFeature(type=FeatureType.ACTION, shape=(8,)),
+            "action": PolicyFeature(type=FeatureType.ACTION, shape=(14,)),
         }
         
         self.normalization_mapping = {
@@ -58,7 +61,9 @@ class BeastVLAConfig(SmolVLAConfig):
         self.use_proprio: bool = False
         # Image configuration
         self.use_second_view: bool = True
-        self.second_view_key: str = "image_secondary"
+        self.second_view_key: str = "observation.images.wrist_cam_left"
+        self.use_third_view: bool = True
+        self.third_view_key: str = "observation.images.wrist_cam_right"
         # Beast Tokenizer configuration
         self.num_dof: int = 8
         # B-spline parameters

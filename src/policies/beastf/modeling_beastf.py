@@ -156,11 +156,13 @@ class BeastFModel(nn.Module):
 
     def _init_flags(self, config):
         self.use_second_view = config.use_second_view
+        self.use_third_view = config.use_third_view
         self.vlm_prompt_style = config.vlm_prompt_style
         self.token_dropout = config.token_dropout
         self.use_proprio = config.use_proprio
         self.return_act_chunk = config.return_act_chunk
         self.second_view_key = config.second_view_key
+        self.third_view_key = config.third_view_key
 
     def _setup_vlm(self, vlm_path, freeze_vision, freeze_florence, freeze_embed):
         logger.info(f"Loading VLM from {vlm_path}")
@@ -303,8 +305,8 @@ class BeastFModel(nn.Module):
         
         # Image encoding logic (simplified for brevity, assuming LeRobot keys)
         img_key = self.img_modalities[0] if self.img_modalities else "observation.images.image"
-        if img_key not in batch and "observation.images.right_cam" in batch:
-            img_key = "observation.images.right_cam"
+        if img_key not in batch and "observation.images.overhead_cam" in batch:
+            img_key = "observation.images.overhead_cam"
             
         image_tensor = batch[img_key]
         if len(image_tensor.shape) == 4:
@@ -323,6 +325,14 @@ class BeastFModel(nn.Module):
             feat2 = self.vlm._encode_image(img2.view(-1, C, H, W).to(device).to(default_dtype))
             feat2 = feat2.view(B, T * feat2.shape[1], -1)
             image_features = torch.cat([image_features, feat2], dim=1)
+            
+        if self.use_third_view and self.third_view_key in batch:
+            img3 = batch[self.second_view_key]
+            if len(img3.shape) == 4: img3 = img3.unsqueeze(1)
+            feat3 = self.vlm._encode_image(img3.view(-1, C, H, W).to(device).to(default_dtype))
+            feat3 = feat3.view(B, T * feat3.shape[1], -1)
+            image_features = torch.cat([image_features, feat3], dim=1)
+
 
         # Text encoding
         txt = batch.get("text", batch.get("task", [""] * B))
