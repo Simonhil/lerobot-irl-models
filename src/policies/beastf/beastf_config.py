@@ -53,7 +53,7 @@ class BeastVLAConfig(SmolVLAConfig):
         self.cfg_dropout: float = 0.0
         self.cfg_lambda: float = 1.0
         # Action and observation configuration
-        self.action_dim: int = 8
+        self.action_dim: int = 14
         self.act_window_size: int = 16
         self.chunk_size: int = 16
         self.multistep: int = 16
@@ -65,7 +65,7 @@ class BeastVLAConfig(SmolVLAConfig):
         self.use_third_view: bool = True
         self.third_view_key: str = "observation.images.wrist_cam_right"
         # Beast Tokenizer configuration
-        self.num_dof: int = 8
+        self.num_dof: int = 14
         # B-spline parameters
         self.gripper_zero_order: bool = False
         self.num_basis: int = 5
